@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Fiches STMG</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --d:#1A3A5C;--dl:#EEF4FF;--dm:#378ADD;
+  --e:#1A5C2E;--el:#E8F5E9;--em:#3B9E5A;
+  --red:#C0392B;--rl:#FFEBEE;
+  --amb:#D4840A;--al:#FFF8E1;
+  --bg:#F5F4F0;--white:#fff;--border:#E4E2DA;
+  --txt:#222;--sub:#777;
+  --r:14px;--sh:0 2px 12px rgba(0,0,0,0.08);
+}
+html,body{height:100%;overflow-x:hidden}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--txt);font-size:15px}
+
+/* ── BOTTOM NAV ── */
+#botnav{
+  position:fixed;bottom:0;left:0;right:0;height:60px;
+  background:var(--white);border-top:1px solid var(--border);
+  display:flex;align-items:stretch;z-index:300;
+  box-shadow:0 -2px 12px rgba(0,0,0,.06)
+}
+.bnav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;border:none;background:none;cursor:pointer;padding:6px 4px;
+  font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--sub);
+  letter-spacing:.02em;transition:color .15s
+}
+.bnav-btn .icon{font-size:20px;line-height:1}
+.bnav-btn.active-d{color:var(--d)}
+.bnav-btn.active-e{color:var(--e)}
+.bnav-btn.active-home{color:#333}
+
+/* ── DRAWER (liste des fiches) ── */
+.drawer{
+  position:fixed;bottom:60px;left:0;right:0;
+  background:var(--white);border-top:1px solid var(--border);
+  z-index:200;transform:translateY(100%);transition:transform .3s ease;
+  max-height:70vh;overflow-y:auto;border-radius:20px 20px 0 0;
+  box-shadow:0 -4px 24px rgba(0,0,0,.12)
+}
+.drawer.open{transform:translateY(0)}
+.drawer-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:12px auto 8px}
+.drawer-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#aaa;
+  text-transform:uppercase;letter-spacing:.07em;padding:0 16px 10px;border-bottom:1px solid var(--border)}
+.drawer-item{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  border-bottom:1px solid #F0EEE8;cursor:pointer;transition:background .12s
+}
+.drawer-item:active{background:var(--bg)}
+.drawer-item:last-child{border-bottom:none;margin-bottom:8px}
+.drawer-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.drawer-dot.d{background:var(--d)}.drawer-dot.e{background:var(--e)}
+.drawer-item-text{flex:1}
+.drawer-item-text .num{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;
+  color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+.drawer-item-text .name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--txt)}
+.drawer-item .arr{color:#ccc;font-size:16px}
+#drawer-overlay{display:none;position:fixed;inset:0;bottom:60px;background:rgba(0,0,0,.25);z-index:150}
+#drawer-overlay.show{display:block}
+
+/* ── MAIN SCROLL ── */
+#main{padding-bottom:72px}
+.page{display:none;animation:fadeIn .18s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── HOME ── */
+#home{padding:0 0 16px}
+.home-hero{
+  background:linear-gradient(135deg,#1A3A5C 0%,#2563A8 100%);
+  padding:48px 20px 32px;color:#fff;
+}
+.home-hero h2{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:6px}
+.home-hero p{font-size:13px;opacity:.75}
+.home-section-label{
+  font-family:'Syne',sans-serif;font-size:11px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;color:#aaa;
+  padding:20px 16px 10px
+}
+.home-list{padding:0 12px}
+.home-item{
+  background:var(--white);border-radius:var(--r);border:1.5px solid var(--border);
+  padding:16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;
+  cursor:pointer;transition:all .15s;position:relative;overflow:hidden
+}
+.home-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:2px 0 0 2px}
+.home-item.d::before{background:var(--d)}
+.home-item.e::before{background:var(--e)}
+.home-item:active{transform:scale(.98);box-shadow:var(--sh)}
+.home-item .badge{
+  width:40px;height:40px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:20px;flex-shrink:0
+}
+.home-item.d .badge{background:var(--dl)}
+.home-item.e .badge{background:var(--el)}
+.home-item-text{flex:1;min-width:0}
+.home-item-text .tag{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px}
+.home-item.d .tag{color:var(--d)}.home-item.e .tag{color:var(--e)}
+.home-item-text h3{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;
+  color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home-item-text p{font-size:12px;color:var(--sub);line-height:1.4;margin-top:2px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.home-item .arr2{color:#ccc;font-size:18px;flex-shrink:0}
+
+/* ── FICHE PAGES ── */
+.fiche-wrap{padding:0}
+.fiche-top-bar{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;background:var(--white);
+  border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100
+}
+.back-btn{
+  width:36px;height:36px;border-radius:10px;border:1.5px solid var(--border);
+  background:var(--bg);display:flex;align-items:center;justify-content:center;
+  font-size:18px;cursor:pointer;flex-shrink:0;color:var(--txt)
+}
+.top-bar-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;
+  color:var(--txt);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.fiche-hero{padding:20px 16px 16px;color:#fff;position:relative;overflow:hidden}
+.fiche-hero::after{content:'';position:absolute;right:-30px;top:-30px;width:140px;height:140px;
+  border-radius:50%;background:rgba(255,255,255,.07)}
+.fiche-hero.d{background:linear-gradient(135deg,var(--d) 0%,#2A5A8C 100%)}
+.fiche-hero.e{background:linear-gradient(135deg,var(--e) 0%,#2A7C4C 100%)}
+.fiche-hero h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;
+  position:relative;margin-bottom:4px;line-height:1.3}
+.fiche-hero p{font-size:12px;opacity:.7;position:relative}
+
+.fiche-content{padding:12px 12px 8px}
+
+/* ── SECTIONS ── */
+.section{background:var(--white);border-radius:var(--r);border:1px solid var(--border);
+  margin-bottom:10px;overflow:hidden}
+.sec-title{
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:700;
+  padding:14px 16px;display:flex;align-items:center;gap:8px;
+  cursor:pointer;user-select:none;transition:background .12s;letter-spacing:.02em;
+  min-height:48px
+}
+.sec-title:active{background:#f5f5f5}
+.sec-title.d{color:var(--d)}.sec-title.e{color:var(--e)}
+.chevron{margin-left:auto;font-size:11px;transition:transform .2s;opacity:.5;flex-shrink:0}
+.sec-title.open .chevron{transform:rotate(180deg)}
+.sec-body{display:none;padding:14px 14px 6px}
+.sec-body.open{display:block;animation:fadeIn .15s ease}
+
+/* ── NOTIONS ── */
+.notion{
+  background:var(--bg);border-radius:10px;padding:12px 14px;
+  margin-bottom:8px;border-left:3px solid var(--border);
+}
+.notion.d:active{border-left-color:var(--dm);background:var(--dl)}
+.notion.e:active{border-left-color:var(--em);background:var(--el)}
+.notion .lbl{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;
+  color:#888;margin-bottom:4px;letter-spacing:.03em;text-transform:uppercase}
+.notion .def{font-size:13.5px;line-height:1.65;color:#333}
+.notion.d .def b{color:var(--d)}.notion.e .def b{color:var(--e)}
+
+/* ── BOXES ── */
+.box-important{background:var(--al);border-left:3px solid var(--amb);border-radius:10px;
+  padding:12px 14px;margin-bottom:10px;font-size:13px;line-height:1.6;color:#5a3800}
+.box-danger{background:var(--rl);border-left:3px solid var(--red);border-radius:10px;
+  padding:12px 14px;margin-bottom:10px;font-size:13px;line-height:1.6;color:#5a0000}
+.box-important b,.box-danger b{font-weight:700}
+
+/* ── COMPARE (stacked on mobile) ── */
+.compare{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.ccard{border-radius:10px;padding:14px;border:1px solid var(--border)}
+.ccard.blue{background:var(--dl);border-color:#B5D4F4}
+.ccard.red{background:var(--rl);border-color:#F7C1C1}
+.ccard.green{background:var(--el);border-color:#C0DD97}
+.ccard.amber{background:var(--al);border-color:#FAC775}
+.ccard h4{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;margin-bottom:8px}
+.ccard.blue h4{color:var(--d)}.ccard.red h4{color:var(--red)}
+.ccard.green h4{color:var(--e)}.ccard.amber h4{color:var(--amb)}
+.ccard ul{padding-left:16px;font-size:13px;line-height:1.9;color:#444}
+
+/* ── NUMLIST ── */
+.numlist{list-style:none;padding:0;margin-bottom:10px}
+.numlist li{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.numlist li .n{
+  min-width:24px;height:24px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;font-size:11px;font-weight:700;
+  color:#fff;flex-shrink:0;margin-top:2px
+}
+.numlist li .n.d{background:var(--d)}.numlist li .n.e{background:var(--e)}
+.numlist li span{font-size:13.5px;line-height:1.6;color:#333}
+
+/* ── TABLE ── */
+.bigtable{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:12px}
+.bigtable th{padding:9px 10px;text-align:left;color:#fff;
+  font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:.03em}
+.bigtable td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5}
+.bigtable tr:last-child td{border-bottom:none}
+.bigtable tr:nth-child(even) td{background:#fafaf8}
+.bigtable .ok{color:#2E7D32;font-weight:700}.bigtable .no{color:var(--red);font-weight:700}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:10px}
+
+/* ── SCROLL TO TOP BTN ── */
+#scrolltop{
+  position:fixed;bottom:76px;right:16px;width:40px;height:40px;
+  border-radius:50%;background:var(--white);border:1.5px solid var(--border);
+  box-shadow:var(--sh);display:none;align-items:center;justify-content:center;
+  font-size:18px;cursor:pointer;z-index:199;color:#555
+}
+#scrolltop.show{display:flex}
+</style>
+</head>
+<body>
+
+<div id="drawer-overlay" onclick="closeDrawer()"></div>
+
+<!-- DRAWER DROIT -->
+<div id="drawer-d" class="drawer">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">⚖️ Fiches Droit</div>
+  <div class="drawer-item" onclick="show('f1');closeDrawer()"><span class="drawer-dot d"></span><div class="drawer-item-text"><div class="num">Fiche 1</div><div class="name">Le contrat</div></div><span class="arr">→</span></div>
+  <div class="drawer-item" onclick="show('f2');closeDrawer()"><span class="drawer-dot d"></span><div class="drawer-item-text"><div class="num">Fiche 2</div><div class="name">L'inexécution du contrat</div></div><span class="arr">→</span></div>
+  <div class="drawer-item" onclick="show('f3');closeDrawer()"><span class="drawer-dot d"></span><div class="drawer-item-text"><div class="num">Fiche 3</div><div class="name">Le dommage réparable</div></div><span class="arr">→</span></div>
+  <div class="drawer-item" onclick="show('f4');closeDrawer()"><span class="drawer-dot d"></span><div class="drawer-item-text"><div class="num">Fiche 4</div><div class="name">Régimes de responsabilité</div></div><span class="arr">→</span></div>
+  <div class="drawer-item" onclick="show('f5');closeDrawer()"><span class="drawer-dot d"></span><div class="drawer-item-text"><div class="num">Fiche 5</div><div class="name">Régimes spéciaux</div></div><span class="arr">→</span></div>
+  <div class="drawer-item" onclick="show('f6');closeDrawer()"><span class="drawer-dot d"></span><div class="drawer-item-text"><div class="num">Fiche 6</div><div class="name">Resp. contractuelle &amp; extra</div></div><span class="arr">→</span></div>
+  <div class="drawer-item" onclick="show('f7');closeDrawer()"><span class="drawer-dot d"></span><div class="drawer-item-text"><div class="num">Fiche 7</div><div class="name">Moyens d'exonération</div></div><span class="arr">→</span></div>
+  <div class="drawer-item" onclick="show('f8');closeDrawer()"><span class="drawer-dot d"></span><div class="drawer-item-text"><div class="num">Fiche 8</div><div class="name">Le contrat de travail</div></div><span class="arr">→</span></div>
+</div>
+
+<!-- DRAWER ÉCO -->
+<div id="drawer-e" class="drawer">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">📊 Fiches Économie</div>
+  <div class="drawer-item" onclick="show('e1');closeDrawer()"><span class="drawer-dot e"></span><div class="drawer-item-text"><div class="num">Fiche E1</div><div class="name">Intervention de l'État</div></div><span class="arr">→</span></div>
+  <div class="drawer-item" onclick="show('e2');closeDrawer()"><span class="drawer-dot e"></span><div class="drawer-item-text"><div class="num">Fiche E2</div><div class="name">Défaillances marché &amp; État</div></div><span class="arr">→</span></div>
+  <div class="drawer-item" onclick="show('e3');closeDrawer()"><span class="drawer-dot e"></span><div class="drawer-item-text"><div class="num">Fiche E3</div><div class="name">Politiques économiques</div></div><span class="arr">→</span></div>
+  <div class="drawer-item" onclick="show('e4');closeDrawer()"><span class="drawer-dot e"></span><div class="drawer-item-text"><div class="num">Fiche E4</div><div class="name">Politiques sociales</div></div><span class="arr">→</span></div>
+  <div class="drawer-item" onclick="show('e5');closeDrawer()"><span class="drawer-dot e"></span><div class="drawer-item-text"><div class="num">Fiche E5</div><div class="name">Activité &amp; chômage</div></div><span class="arr">→</span></div>
+  <div class="drawer-item" onclick="show('e6');closeDrawer()"><span class="drawer-dot e"></span><div class="drawer-item-text"><div class="num">Fiche E6</div><div class="name">Commerce mondial</div></div><span class="arr">→</span></div>
+</div>
+
+<!-- SCROLL TO TOP -->
+<div id="scrolltop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</div>
+
+<!-- MAIN -->
+<div id="main">
+
+<!-- HOME -->
+<div id="home" class="page active">
+  <div class="home-hero">
+    <h2>Fiches STMG 📚</h2>
+    <p>Droit &amp; Économie · Révise où tu veux</p>
+  </div>
+
+  <div class="home-section-label">⚖️ Droit — 8 fiches</div>
+  <div class="home-list">
+    <div class="home-item d" onclick="show('f1')"><div class="badge">📄</div><div class="home-item-text"><div class="tag">Droit · F1</div><h3>Le contrat</h3><p>Conditions de validité, vices du consentement, nullité, principes</p></div><span class="arr2">›</span></div>
+    <div class="home-item d" onclick="show('f2')"><div class="badge">⚡</div><div class="home-item-text"><div class="tag">Droit · F2</div><h3>L'inexécution du contrat</h3><p>Exception d'inexécution, mise en demeure, résiliation, clauses</p></div><span class="arr2">›</span></div>
+    <div class="home-item d" onclick="show('f3')"><div class="badge">💥</div><div class="home-item-text"><div class="tag">Droit · F3</div><h3>Le dommage réparable</h3><p>Resp. civile vs pénale, préjudice, réparation, assurance</p></div><span class="arr2">›</span></div>
+    <div class="home-item d" onclick="show('f4')"><div class="badge">🔺</div><div class="home-item-text"><div class="tag">Droit · F4</div><h3>Régimes de responsabilité</h3><p>Fait générateur, dommage, lien de causalité</p></div><span class="arr2">›</span></div>
+    <div class="home-item d" onclick="show('f5')"><div class="badge">⚖️</div><div class="home-item-text"><div class="tag">Droit · F5</div><h3>Régimes spéciaux</h3><p>Préjudice écologique, accident du travail, produit défectueux</p></div><span class="arr2">›</span></div>
+    <div class="home-item d" onclick="show('f6')"><div class="badge">🌍</div><div class="home-item-text"><div class="tag">Droit · F6</div><h3>Resp. contractuelle &amp; extra</h3><p>Fait personnel, fait des choses, fait d'autrui, animaux</p></div><span class="arr2">›</span></div>
+    <div class="home-item d" onclick="show('f7')"><div class="badge">🛡️</div><div class="home-item-text"><div class="tag">Droit · F7</div><h3>Moyens d'exonération</h3><p>Force majeure, clauses limitatives, obligations de moyens</p></div><span class="arr2">›</span></div>
+    <div class="home-item d" onclick="show('f8')"><div class="badge">👔</div><div class="home-item-text"><div class="tag">Droit · F8</div><h3>Le contrat de travail</h3><p>Lien de subordination, pouvoirs, convention collective</p></div><span class="arr2">›</span></div>
+  </div>
+
+  <div class="home-section-label">📊 Économie — 6 fiches</div>
+  <div class="home-list" style="padding-bottom:8px">
+    <div class="home-item e" onclick="show('e1')"><div class="badge">🏛️</div><div class="home-item-text"><div class="tag">Éco · E1</div><h3>Intervention de l'État</h3><p>État-gendarme, État-providence, libéralisme, finances publiques</p></div><span class="arr2">›</span></div>
+    <div class="home-item e" onclick="show('e2')"><div class="badge">⚡</div><div class="home-item-text"><div class="tag">Éco · E2</div><h3>Défaillances du marché &amp; État</h3><p>Asymétries d'info, externalités, biens publics, communs</p></div><span class="arr2">›</span></div>
+    <div class="home-item e" onclick="show('e3')"><div class="badge">📈</div><div class="home-item-text"><div class="tag">Éco · E3</div><h3>Politiques économiques</h3><p>Cycles, budgétaire, monétaire, critères européens</p></div><span class="arr2">›</span></div>
+    <div class="home-item e" onclick="show('e4')"><div class="badge">🛡️</div><div class="home-item-text"><div class="tag">Éco · E4</div><h3>Politiques sociales</h3><p>Redistribution, protection sociale, assurance vs assistance</p></div><span class="arr2">›</span></div>
+    <div class="home-item e" onclick="show('e5')"><div class="badge">👥</div><div class="home-item-text"><div class="tag">Éco · E5</div><h3>Activité et chômage</h3><p>BIT, taux, formes de chômage, politiques actives/passives</p></div><span class="arr2">›</span></div>
+    <div class="home-item e" onclick="show('e6')"><div class="badge">🌍</div><div class="home-item-text"><div class="tag">Éco · E6</div><h3>Commerce mondial</h3><p>IDE, FMN, balance commerciale, segmentation</p></div><span class="arr2">›</span></div>
+  </div>
+</div>
+
+<!-- ══ FICHES DROIT ══ -->
+
+<!-- F1 -->
+<div id="f1" class="page">
+  <div class="fiche-top-bar"><button class="back-btn" onclick="show('home')">←</button><div class="top-bar-title">F1 · Le contrat</div></div>
+  <div class="fiche-wrap">
+    <div class="fiche-hero d"><h2>⚖️ Le contrat</h2><p>Formation et principes</p></div>
+    <div class="fiche-content">
+
+  <div class="section">
+    <div class="sec-title d open" onclick="tog(this)">👥 Les parties au contrat <span class="chevron">▼</span></div>
+    <div class="sec-body open">
+      <div class="compare">
+        <div class="ccard blue"><h4>Le Consommateur</h4><ul><li>Personne physique pour des <b>besoins personnels</b></li><li>Partie <b>protégée</b> par le droit</li></ul></div>
+        <div class="ccard green"><h4>Le Professionnel</h4><ul><li>Agit dans <b>sa profession</b></li><li>Obligations renforcées envers le conso.</li></ul></div>
+      </div>
+      <div class="notion d"><div class="lbl">Créancier / Débiteur</div><div class="def"><b>Créancier</b> = détient un droit. <b>Débiteur</b> = doit exécuter une obligation.</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">📋 Obligations précontractuelles <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion d"><div class="lbl">Obligation d'information</div><div class="def">Le professionnel doit informer avant la conclusion → achat en toute connaissance. <b>Protège la partie faible.</b></div></div>
+      <div class="notion d"><div class="lbl">Obligation de conseil</div><div class="def">Va plus loin que l'information : assurer <b>l'adéquation produit/besoin.</b></div></div>
+      <div class="box-important"><b>💡</b> Manquement → peut entraîner la nullité du contrat.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">✅ Conditions de validité <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="box-danger"><b>⚠️ 4 conditions obligatoires :</b></div>
+      <ul class="numlist">
+        <li><span class="n d">1</span><span><b>Consentement</b> — offre + acceptation libre et éclairée</span></li>
+        <li><span class="n d">2</span><span><b>Capacité</b> — ❌ mineurs, majeurs protégés</span></li>
+        <li><span class="n d">3</span><span><b>Objet</b> — licite et certain</span></li>
+        <li><span class="n d">4</span><span><b>Cause licite</b> — but légal et moral</span></li>
+      </ul>
+      <div class="box-danger"><b>⚠️ 3 vices du consentement :</b></div>
+      <div class="compare">
+        <div class="ccard blue"><h4>❌ Erreur</h4><ul><li>Se tromper sur un élément <b>essentiel</b></li></ul></div>
+        <div class="ccard red"><h4>🎭 Dol</h4><ul><li>Manœuvres <b>frauduleuses</b> pour tromper</li></ul></div>
+      </div>
+      <div class="ccard red" style="margin-bottom:10px"><h4>💢 Violence</h4><ul><li>Contrainte physique ou <b>morale</b></li></ul></div>
+      <div class="notion d"><div class="lbl">Droit de rétractation</div><div class="def">Délai légal pour <b>revenir sur son consentement</b> (ex : 14 jours contrats à distance).</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">⚖️ Les 4 principes du contrat <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion d"><div class="lbl">1 · Liberté contractuelle</div><div class="def">Liberté de contracter ou <b>NON</b>, de choisir son contractant et le contenu.</div></div>
+      <div class="notion d"><div class="lbl">2 · Force obligatoire</div><div class="def">Le contrat a <b>force de loi</b> entre les parties.</div></div>
+      <div class="notion d"><div class="lbl">3 · Effet relatif des conventions</div><div class="def">Obligations <b>uniquement entre les parties</b> — pas pour les tiers.</div></div>
+      <div class="notion d"><div class="lbl">4 · Bonne foi</div><div class="def">Exécution <b>loyale, intègre et honnête</b>.</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">📝 Obligations et clauses <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="compare">
+        <div class="ccard blue"><h4>Obligation de MOYENS</h4><ul><li>Tout mettre en œuvre <b>sans garantir</b> le résultat</li><li>Ex : médecin</li></ul></div>
+        <div class="ccard red"><h4>Obligation de RÉSULTAT</h4><ul><li>Le résultat <b>DOIT être atteint</b></li><li>Ex : transporteur</li></ul></div>
+      </div>
+      <div class="notion d"><div class="lbl">Les clauses</div><div class="def">Dispositions particulières qui aménagent les droits et obligations des parties.</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">❌ La nullité du contrat <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="compare">
+        <div class="ccard blue"><h4>Nullité RELATIVE</h4><ul><li>Protège l'intérêt <b>privé</b></li><li>Seules les <b>parties</b> peuvent demander</li><li>5 ans depuis la <b>DÉCOUVERTE</b></li></ul></div>
+        <div class="ccard red"><h4>Nullité ABSOLUE</h4><ul><li>Protège l'intérêt <b>général</b></li><li><b>Tout le monde</b> peut demander</li><li>5 ans depuis la <b>CONCLUSION</b></li></ul></div>
+      </div>
+      <div class="box-important"><b>💡</b> Contrat anéanti <b>rétroactivement</b> — chaque partie restitue ce qu'elle a reçu.</div>
+    </div>
+  </div>
+  </div>
+</div>
+</div>
+
+<!-- F2 -->
+<div id="f2" class="page">
+  <div class="fiche-top-bar"><button class="back-btn" onclick="show('home')">←</button><div class="top-bar-title">F2 · Inexécution du contrat</div></div>
+  <div class="fiche-wrap">
+    <div class="fiche-hero d"><h2>⚖️ L'inexécution du contrat</h2><p>Remèdes à l'inexécution</p></div>
+    <div class="fiche-content">
+  <div class="section">
+    <div class="sec-title d open" onclick="tog(this)">📋 Exécution vs Inexécution <span class="chevron">▼</span></div>
+    <div class="sec-body open">
+      <div class="compare">
+        <div class="ccard green"><h4>✅ Exécution</h4><ul><li>Chaque partie <b>respecte ses obligations</b></li><li>→ Les parties sont libérées</li></ul></div>
+        <div class="ccard red"><h4>❌ Inexécution</h4><ul><li>Une partie ne remplit <b>pas ses obligations</b></li><li>→ Engage la responsabilité contractuelle</li></ul></div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">⚡ L'exception d'inexécution <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion d"><div class="lbl">Définition</div><div class="def">Droit de <b>suspendre ses propres obligations</b> tant que l'autre n'a pas exécuté les siennes.</div></div>
+      <div class="box-important"><b>💡</b> Obligations doivent être <b>réciproques et simultanées</b>. Mesure temporaire.</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">📬 La mise en demeure <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion d"><div class="lbl">Définition</div><div class="def">Le créancier <b>somme officiellement le débiteur d'exécuter</b>. Formalité préalable obligatoire avant toute action en justice.</div></div>
+      <div class="box-danger"><b>⚠️ Formes :</b> LRAR · Acte d'huissier · Courrier officiel. Elle fait courir les intérêts moratoires.</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">🔨 Résiliation et résolution <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="compare">
+        <div class="ccard blue"><h4>Résiliation</h4><ul><li>Met fin <b>pour l'avenir</b></li><li>Contrats à exécution <b>successive</b></li><li>Pas d'effet rétroactif</li></ul></div>
+        <div class="ccard red"><h4>Résolution</h4><ul><li>Anéantit <b>rétroactivement</b></li><li>Contrats à exécution <b>instantanée</b></li><li>Restitution de ce reçu</li></ul></div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">📝 Les clauses particulières <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion d"><div class="lbl">Clause pénale</div><div class="def">Fixe <b>à l'avance</b> le montant des dommages-intérêts en cas d'inexécution. Le juge peut la réviser.</div></div>
+      <div class="notion d"><div class="lbl">Clause abusive</div><div class="def">Crée un <b>déséquilibre significatif</b> au détriment du consommateur. <b>Réputée non écrite.</b></div></div>
+    </div>
+  </div>
+  </div></div></div>
+
+<!-- F3 -->
+<div id="f3" class="page">
+  <div class="fiche-top-bar"><button class="back-btn" onclick="show('home')">←</button><div class="top-bar-title">F3 · Le dommage réparable</div></div>
+  <div class="fiche-wrap">
+    <div class="fiche-hero d"><h2>⚖️ Le dommage réparable</h2><p>Responsabilité civile</p></div>
+    <div class="fiche-content">
+  <div class="section">
+    <div class="sec-title d open" onclick="tog(this)">🔄 Resp. civile vs pénale <span class="chevron">▼</span></div>
+    <div class="sec-body open">
+      <div class="compare">
+        <div class="ccard blue"><h4>Resp. CIVILE</h4><ul><li>Répare le préjudice d'<b>une victime</b></li><li>Sanction : dommages-intérêts</li></ul></div>
+        <div class="ccard red"><h4>Resp. PÉNALE</h4><ul><li>Sanctionne atteinte à <b>l'intérêt général</b></li><li>Sanction : amende, prison</li></ul></div>
+      </div>
+      <div class="box-important"><b>💡 Les deux peuvent se cumuler</b> pour un même acte.</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">💥 Types de préjudice <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="box-danger"><b>⚠️ Réparable si : Certain · Personnel · Légitime · Direct</b></div>
+      <div class="notion d"><div class="lbl">Dommage MATÉRIEL</div><div class="def">Atteinte aux <b>biens</b>. Ex : destruction d'un véhicule.</div></div>
+      <div class="notion d"><div class="lbl">Dommage CORPOREL</div><div class="def">Atteinte à l'intégrité <b>physique</b>. Ex : blessures, frais médicaux.</div></div>
+      <div class="notion d"><div class="lbl">Dommage MORAL</div><div class="def">Souffrance <b>psychologique</b>, atteinte à l'honneur.</div></div>
+      <div class="notion d"><div class="lbl">Préjudice écologique</div><div class="def">Dommage à <b>l'environnement</b> (loi Biodiversité 2016). Réparation prioritairement en nature.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">🔧 Réparation et assurance <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion d"><div class="lbl">La réparation</div><div class="def">Replacer la victime dans <b>l'état antérieur</b> au dommage. En nature ou par équivalent (dommages-intérêts).</div></div>
+      <div class="notion d"><div class="lbl">L'assurance</div><div class="def">Mécanisme de <b>mutualisation des risques</b>. Garantit l'indemnisation même si le responsable est insolvable.</div></div>
+    </div>
+  </div>
+  </div></div></div>
+
+<!-- F4 -->
+<div id="f4" class="page">
+  <div class="fiche-top-bar"><button class="back-btn" onclick="show('home')">←</button><div class="top-bar-title">F4 · Régimes de responsabilité</div></div>
+  <div class="fiche-wrap">
+    <div class="fiche-hero d"><h2>⚖️ Régimes de responsabilité</h2><p>Les 3 éléments constitutifs</p></div>
+    <div class="fiche-content">
+  <div class="section">
+    <div class="sec-title d open" onclick="tog(this)">🔺 Le triangle de la resp. civile <span class="chevron">▼</span></div>
+    <div class="sec-body open">
+      <div class="box-danger"><b>⚠️ 3 éléments CUMULATIFS obligatoires</b></div>
+      <div class="notion d"><div class="lbl">1 · Fait générateur / Faute</div><div class="def">Acte ou fait à l'origine du dommage. Comportement anormal, intentionnel ou non.</div></div>
+      <div class="notion d"><div class="lbl">2 · Le Dommage</div><div class="def">Préjudice subi. Doit être <b>certain, direct, personnel, légitime</b>.</div></div>
+      <div class="notion d"><div class="lbl">3 · Lien de causalité</div><div class="def">La faute doit être <b>LA CAUSE directe</b> du dommage. Peut être rompu (force majeure).</div></div>
+      <div class="box-important"><b>💡 Si un seul élément manque → pas de responsabilité.</b></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">📊 Contractuelle vs extracontractuelle <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="compare">
+        <div class="ccard blue"><h4>Contractuelle</h4><ul><li>Inexécution d'un <b>contrat</b></li><li>Contrat valide obligatoire</li></ul></div>
+        <div class="ccard red"><h4>Extracontractuelle</h4><ul><li>Hors contrat</li><li>Faute / fait des choses / autrui</li></ul></div>
+      </div>
+      <div class="box-important"><b>💡 But identique :</b> Réparer le préjudice subi par la victime.</div>
+    </div>
+  </div>
+  </div></div></div>
+
+<!-- F5 -->
+<div id="f5" class="page">
+  <div class="fiche-top-bar"><button class="back-btn" onclick="show('home')">←</button><div class="top-bar-title">F5 · Régimes spéciaux</div></div>
+  <div class="fiche-wrap">
+    <div class="fiche-hero d"><h2>⚖️ Les régimes spéciaux</h2><p>Cas particuliers de responsabilité</p></div>
+    <div class="fiche-content">
+  <div class="section">
+    <div class="sec-title d open" onclick="tog(this)">🌿 Préjudice écologique <span class="chevron">▼</span></div>
+    <div class="sec-body open">
+      <div class="notion d"><div class="lbl">Définition</div><div class="def">Dommage causé <b>directement à l'environnement</b> (loi Biodiversité 2016).</div></div>
+      <div class="box-important"><b>💡 Réparation en nature</b> prioritaire (dépollution, restauration). Toute personne peut agir en justice.</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">👷 Accident du travail <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion d"><div class="lbl">Définition</div><div class="def">Événement <b>soudain</b> causant une lésion, survenant <b>par le fait ou à l'occasion du travail</b>.</div></div>
+      <div class="box-danger"><b>⚠️</b> Présomption d'imputabilité — pas besoin de prouver la faute. Prise en charge <b>Sécu à 100%</b>.</div>
+      <div class="notion d"><div class="lbl">Faute inexcusable</div><div class="def">Employeur connaissait le risque sans agir → majoration de la rente.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">🚗 Accident de la circulation (Loi Badinter 1985) <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion d"><div class="lbl">Définition</div><div class="def">Impliquant <b>au moins un véhicule terrestre à moteur</b>.</div></div>
+      <div class="box-important"><b>💡 Piétons, cyclistes, passagers :</b> indemnisés <b>sauf faute inexcusable</b>. Via l'assurance obligatoire.</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">🏭 Produits défectueux <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion d"><div class="lbl">Définition</div><div class="def">Produit n'offrant pas la <b>sécurité attendue</b>. Responsabilité du producteur <b>SANS faute prouvée</b>.</div></div>
+      <div class="box-danger"><b>⚠️ 3 conditions :</b><br>① Dommage &gt; 500 € + ② Défaut de sécurité + ③ Lien de causalité<br>La victime <b>N'A PAS à prouver la faute.</b></div>
+      <div class="notion d"><div class="lbl">Délai</div><div class="def"><b>3 ans</b> depuis la découverte. Droit éteint <b>10 ans</b> après la mise en circulation.</div></div>
+    </div>
+  </div>
+  </div></div></div>
+
+<!-- F6 -->
+<div id="f6" class="page">
+  <div class="fiche-top-bar"><button class="back-btn" onclick="show('home')">←</button><div class="top-bar-title">F6 · Resp. contractuelle &amp; extra</div></div>
+  <div class="fiche-wrap">
+    <div class="fiche-hero d"><h2>⚖️ Responsabilités contractuelle &amp; extracontractuelle</h2><p>Les faits générateurs</p></div>
+    <div class="fiche-content">
+  <div class="section">
+    <div class="sec-title d open" onclick="tog(this)">📋 Responsabilité contractuelle <span class="chevron">▼</span></div>
+    <div class="sec-body open">
+      <div class="box-danger"><b>⚠️ 4 conditions :</b> Contrat valide + faute contractuelle + dommage + lien de causalité</div>
+      <div class="compare">
+        <div class="ccard blue"><h4>Obligation de MOYENS</h4><ul><li>Tout mettre en œuvre <b>sans garantir</b></li><li>Victime <b>prouve la faute</b></li></ul></div>
+        <div class="ccard red"><h4>Obligation de RÉSULTAT</h4><ul><li>Résultat <b>DOIT être atteint</b></li><li>Responsabilité <b>automatique</b></li></ul></div>
+      </div>
+      <div class="notion d"><div class="lbl">Obligation de sécurité</div><div class="def">Protéger l'intégrité physique. Transport de passagers = <b>résultat</b>.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">🌍 Responsabilité extracontractuelle <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="box-important"><b>💡 Hors contrat.</b> Conditions : faute (ou fait) + dommage + lien de causalité.</div>
+      <div class="notion d"><div class="lbl">Le fait PERSONNEL (art. 1240)</div><div class="def">Responsable du dommage causé par <b>sa propre faute</b>.</div></div>
+      <div class="notion d"><div class="lbl">Le fait des CHOSES (art. 1242)</div><div class="def">Responsable des choses sous sa <b>garde</b>. Victime <b>n'a PAS à prouver la faute</b>.</div></div>
+      <div class="notion d"><div class="lbl">Le fait D'AUTRUI (art. 1242)</div><div class="def"><b>Parents pour enfants mineurs</b>, employeur pour salariés dans leurs fonctions.</div></div>
+      <div class="notion d"><div class="lbl">Le fait des ANIMAUX (art. 1243)</div><div class="def">Propriétaire responsable <b>même si l'animal s'est échappé</b>.</div></div>
+      <div class="notion d"><div class="lbl">La ruine des BÂTIMENTS (art. 1244)</div><div class="def">Propriétaire responsable si <b>défaut d'entretien ou vice de construction</b>.</div></div>
+    </div>
+  </div>
+  </div></div></div>
+
+<!-- F7 -->
+<div id="f7" class="page">
+  <div class="fiche-top-bar"><button class="back-btn" onclick="show('home')">←</button><div class="top-bar-title">F7 · Moyens d'exonération</div></div>
+  <div class="fiche-wrap">
+    <div class="fiche-hero d"><h2>⚖️ Les moyens d'exonération</h2><p>Se dégager de sa responsabilité</p></div>
+    <div class="fiche-content">
+  <div class="section">
+    <div class="sec-title d open" onclick="tog(this)">🛡️ Causes d'exonération légales <span class="chevron">▼</span></div>
+    <div class="sec-body open">
+      <div class="notion d"><div class="lbl">Force majeure</div><div class="def">Événement <b>imprévisible, irrésistible et extérieur</b>. Exonère totalement.</div></div>
+      <div class="notion d"><div class="lbl">Faute de la victime</div><div class="def">Si la victime a contribué → <b>partage ou exonération totale</b> selon la gravité.</div></div>
+      <div class="notion d"><div class="lbl">Fait d'un tiers</div><div class="def">Intervention d'une tierce personne → peut exonérer partiellement ou totalement.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">📝 Les clauses contractuelles <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="compare">
+        <div class="ccard blue"><h4>Clause LIMITATIVE</h4><ul><li>Limite le <b>montant</b> des dommages-intérêts</li><li><b>Non valable</b> si faute grave</li></ul></div>
+        <div class="ccard red"><h4>Clause EXONÉRATOIRE</h4><ul><li>Supprime <b>totalement</b> la responsabilité</li><li><b>Non valable</b> si faute grave ou envers un consommateur</li></ul></div>
+      </div>
+      <div class="box-danger"><b>⚠️ Toujours nulles</b> en cas de faute grave (lourde) ou intentionnelle.</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">🔄 Rappel obligations <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion d"><div class="lbl">Obligation de moyens</div><div class="def">Victime doit <b>prouver la faute</b> (médecin, avocat, architecte).</div></div>
+      <div class="notion d"><div class="lbl">Obligation de résultat</div><div class="def">Responsabilité <b>automatique</b> si résultat non atteint — sauf force majeure.</div></div>
+      <div class="notion d"><div class="lbl">Obligation de sécurité</div><div class="def"><b>Résultat</b> pour le transport de personnes, <b>moyens</b> dans d'autres cas.</div></div>
+    </div>
+  </div>
+  </div></div></div>
+
+<!-- F8 -->
+<div id="f8" class="page">
+  <div class="fiche-top-bar"><button class="back-btn" onclick="show('home')">←</button><div class="top-bar-title">F8 · Contrat de travail</div></div>
+  <div class="fiche-wrap">
+    <div class="fiche-hero d"><h2>⚖️ Le contrat de travail</h2><p>Relations de travail</p></div>
+    <div class="fiche-content">
+  <div class="section">
+    <div class="sec-title d open" onclick="tog(this)">📋 Le contrat de travail <span class="chevron">▼</span></div>
+    <div class="sec-body open">
+      <div class="notion d"><div class="lbl">Définition</div><div class="def">Salarié fournit un travail sous l'<b>autorité d'un employeur</b> contre rémunération.</div></div>
+      <div class="box-danger"><b>⚠️ Lien de subordination :</b> L'employeur donne des ordres, contrôle l'exécution et sanctionne les manquements.</div>
+      <div class="compare">
+        <div class="ccard blue"><h4>Contrat de TRAVAIL</h4><ul><li>Lien de <b>subordination</b></li><li>Droit du travail s'applique</li></ul></div>
+        <div class="ccard green"><h4>Contrat D'ENTREPRISE</h4><ul><li>Prestataire <b>indépendant</b></li><li>Ex : artisan, freelance</li></ul></div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">👔 Les pouvoirs de l'employeur <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion d"><div class="lbl">Pouvoir de direction</div><div class="def">Organiser le travail, donner des instructions.</div></div>
+      <div class="notion d"><div class="lbl">Pouvoir réglementaire / Règlement intérieur</div><div class="def">Fixer règles de discipline et d'hygiène-sécurité (obligatoire +50 salariés).</div></div>
+      <div class="notion d"><div class="lbl">Pouvoir disciplinaire</div><div class="def"><b>Avertissement → mise à pied → licenciement.</b> Procédure légale obligatoire.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title d" onclick="tog(this)">🤝 Négociation collective <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion d"><div class="lbl">Partenaires sociaux</div><div class="def">Syndicats (salariés) + organisations patronales (employeurs).</div></div>
+      <div class="notion d"><div class="lbl">Négociation collective</div><div class="def"><b>Syndicats et employeurs</b> négocient conditions de travail, salaires.</div></div>
+      <div class="notion d"><div class="lbl">Convention collective</div><div class="def">Accord définissant les <b>conditions de travail et d'emploi</b> dans une branche. Peut être plus favorable que la loi.</div></div>
+      <div class="box-important"><b>💡 Hiérarchie :</b> Ordre public → Loi → Convention collective → Accord d'entreprise → Contrat individuel.</div>
+    </div>
+  </div>
+  </div></div></div>
+
+<!-- ══ FICHES ÉCO ══ -->
+
+<!-- E1 -->
+<div id="e1" class="page">
+  <div class="fiche-top-bar"><button class="back-btn" onclick="show('home')">←</button><div class="top-bar-title">E1 · Intervention de l'État</div></div>
+  <div class="fiche-wrap">
+    <div class="fiche-hero e"><h2>📊 Intervention de l'État</h2><p>Rôle et modes d'intervention</p></div>
+    <div class="fiche-content">
+  <div class="section">
+    <div class="sec-title e open" onclick="tog(this)">🏛️ Les 2 modèles d'État <span class="chevron">▼</span></div>
+    <div class="sec-body open">
+      <div class="compare">
+        <div class="ccard green"><h4>🔒 État-gendarme</h4><ul><li>Intervention <b>minimale</b></li><li>Police · Justice · Défense</li><li>→ Courant libéral</li></ul></div>
+        <div class="ccard green"><h4>🌐 État-providence</h4><ul><li>Rôle <b>central</b> dans le social</li><li>3 fonctions : régulation · allocation · redistribution</li><li>→ Courant interventionniste</li></ul></div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title e" onclick="tog(this)">📊 3 fonctions de l'État-providence (Musgrave) <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="box-important"><b>⚠️ À retenir :</b> Régulation · Allocation · Redistribution</div>
+      <div class="notion e"><div class="lbl">🔄 Régulation</div><div class="def">Maintenir l'activité éco. à un niveau satisfaisant (<b>relance, stabilisation</b>).</div></div>
+      <div class="notion e"><div class="lbl">📦 Allocation</div><div class="def">Produire des biens/services <b>non marchands</b> : éducation, santé, sécurité…</div></div>
+      <div class="notion e"><div class="lbl">⚖️ Redistribution</div><div class="def">Réduire les inégalités via des <b>prélèvements obligatoires</b> redistribués.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title e" onclick="tog(this)">💡 Libéralisme vs Interventionnisme <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="compare">
+        <div class="ccard green"><h4>Libéralisme</h4><ul><li>Adam Smith : <b>« main invisible »</b></li><li>État minimal</li></ul></div>
+        <div class="ccard amber"><h4>Interventionnisme</h4><ul><li>Keynes : relance par dépense publique</li><li>L'État corrige les <b>défaillances</b></li></ul></div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title e" onclick="tog(this)">🏢 Entreprises et finances publiques <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion e"><div class="lbl">Entreprises publiques / semi-pub. / privées</div><div class="def"><b>Publiques</b> : capital État &gt; 50%. <b>Semi-pub.</b> : capital partagé. <b>Nationalisation / Privatisation</b> = passages entre les deux.</div></div>
+      <div class="notion e"><div class="lbl">Dépenses publiques</div><div class="def">≈ 55-57% du PIB en France.</div></div>
+      <div class="notion e"><div class="lbl">Déficit public</div><div class="def">Dépenses &gt; Ressources. Critère EU : <b>max 3% du PIB.</b></div></div>
+      <div class="notion e"><div class="lbl">Dette publique</div><div class="def">≈ 110-115% du PIB en France. Critère EU : <b>max 60% du PIB.</b></div></div>
+    </div>
+  </div>
+  </div></div></div>
+
+<!-- E2 -->
+<div id="e2" class="page">
+  <div class="fiche-top-bar"><button class="back-btn" onclick="show('home')">←</button><div class="top-bar-title">E2 · Défaillances marché &amp; État</div></div>
+  <div class="fiche-wrap">
+    <div class="fiche-hero e"><h2>📊 Défaillances du marché &amp; de l'État</h2><p>Imperfections et corrections</p></div>
+    <div class="fiche-content">
+  <div class="section">
+    <div class="sec-title e open" onclick="tog(this)">🔄 Défaillances du marché <span class="chevron">▼</span></div>
+    <div class="sec-body open">
+      <div class="notion e"><div class="lbl">Asymétries d'information</div><div class="def">Acteurs n'ont <b>pas le même niveau d'information</b> → mauvaises décisions. Ex : vendeur voiture connaît ses défauts mieux que l'acheteur.</div></div>
+      <div class="notion e"><div class="lbl">Sélection adverse</div><div class="def">Asymétrie → les <b>mauvais risques</b> s'auto-sélectionnent. Ex : assurance santé.</div></div>
+      <div class="notion e"><div class="lbl">Aléa moral</div><div class="def">Comportement moins prudent <b>après couverture d'un risque</b>.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title e" onclick="tog(this)">⚡ Les externalités <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="compare">
+        <div class="ccard green"><h4>Externalité POSITIVE</h4><ul><li>Effet <b>bénéfique</b> sur des tiers</li><li>→ Sous-production par le marché</li><li>Ex : vaccination</li></ul></div>
+        <div class="ccard red"><h4>Externalité NÉGATIVE</h4><ul><li>Conséquence <b>indésirable</b></li><li>→ Sur-production par le marché</li><li>Ex : pollution industrielle</li></ul></div>
+      </div>
+      <div class="notion e"><div class="lbl">Principe pollueur-payeur</div><div class="def">Coûts de réparation à la charge du <b>pollueur</b>.</div></div>
+      <div class="notion e"><div class="lbl">Passager clandestin</div><div class="def">Bénéficie d'un bien collectif <b>sans contribuer</b>.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title e" onclick="tog(this)">📦 Biens publics et communs <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="table-scroll">
+      <table class="bigtable">
+        <thead><tr style="background:var(--e)"><th>Type</th><th>Rival ?</th><th>Excluable ?</th><th>Exemple</th></tr></thead>
+        <tbody>
+          <tr><td><b>Privé</b></td><td class="ok">✔</td><td class="ok">✔</td><td>Pomme, voiture</td></tr>
+          <tr><td><b>Public</b></td><td class="no">✘</td><td class="no">✘</td><td>Éclairage public</td></tr>
+          <tr><td><b>Commun</b></td><td class="ok">✔</td><td class="no">✘</td><td>Forêt publique</td></tr>
+          <tr><td><b>Club</b></td><td class="no">✘</td><td class="ok">✔</td><td>Autoroute péage</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="box-danger"><b>⚠️ Tragédie des communs :</b> Surexploitation si personne ne régule.</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title e" onclick="tog(this)">🏛️ Défaillances de l'État <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion e"><div class="lbl">Choix public biaisé</div><div class="def">Décideurs agissent dans leur <b>intérêt électoral</b>.</div></div>
+      <div class="notion e"><div class="lbl">Bureaucratie et inefficacité</div><div class="def">Administrations peuvent être <b>inefficaces et coûteuses</b>.</div></div>
+      <div class="notion e"><div class="lbl">Lobbying / Capture réglementaire</div><div class="def"><b>Lobbies</b> influencent les décisions publiques.</div></div>
+    </div>
+  </div>
+  </div></div></div>
+
+<!-- E3 -->
+<div id="e3" class="page">
+  <div class="fiche-top-bar"><button class="back-btn" onclick="show('home')">←</button><div class="top-bar-title">E3 · Politiques économiques</div></div>
+  <div class="fiche-wrap">
+    <div class="fiche-hero e"><h2>📊 Les politiques économiques</h2><p>Cycles et instruments</p></div>
+    <div class="fiche-content">
+  <div class="section">
+    <div class="sec-title e open" onclick="tog(this)">📈 Cycles économiques <span class="chevron">▼</span></div>
+    <div class="sec-body open">
+      <div class="notion e"><div class="lbl">🚀 Expansion</div><div class="def">Croissance → emploi, investissements, risque d'inflation.</div></div>
+      <div class="notion e"><div class="lbl">⚠️ Crise</div><div class="def">Retournement brutal du cycle.</div></div>
+      <div class="notion e"><div class="lbl">📉 Récession</div><div class="def">PIB négatif <b>≥ 2 trimestres consécutifs.</b></div></div>
+      <div class="notion e"><div class="lbl">💥 Dépression</div><div class="def">Chute durable + déflation. Ex : crise de 1929.</div></div>
+      <div class="notion e"><div class="lbl">📈 Reprise</div><div class="def">Croissance redevient <b>positive</b> après la baisse.</div></div>
+      <div class="notion e"><div class="lbl">Politique contracyclique</div><div class="def">Va à l'<b>encontre du cycle</b> — relance en récession, rigueur en surchauffe.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title e" onclick="tog(this)">💰 Politique budgétaire (État) <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion e"><div class="lbl">Définition</div><div class="def">L'État agit sur ses <b>recettes (impôts) et ses dépenses.</b></div></div>
+      <div class="compare">
+        <div class="ccard green"><h4>Politique de RELANCE</h4><ul><li>En <b>récession</b></li><li>Dépenses+ / Impôts−</li><li>→ Stimule la demande</li></ul></div>
+        <div class="ccard amber"><h4>Politique d'AUSTÉRITÉ</h4><ul><li>En <b>surchauffe/inflation</b></li><li>Dépenses− / Impôts+</li><li>→ Réduit le déficit</li></ul></div>
+      </div>
+      <div class="box-important"><b>💡 Multiplicateur keynésien :</b> 1€ de dépense → plus de 1€ de croissance.</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title e" onclick="tog(this)">🏦 Politique monétaire (BCE) <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion e"><div class="lbl">Taux directeur</div><div class="def">Taux auquel la BCE prête aux banques. Influence le coût du crédit.</div></div>
+      <div class="compare">
+        <div class="ccard green"><h4>Politique ACCOMMODANTE</h4><ul><li>Baisse taux → crédit pas cher</li><li>→ Stimule l'activité</li></ul></div>
+        <div class="ccard red"><h4>Politique RESTRICTIVE</h4><ul><li>Hausse taux → crédit cher</li><li>→ Freine l'inflation</li></ul></div>
+      </div>
+      <div class="box-important"><b>💡 BCE indépendante</b> des gouvernements. Mission : <b>inflation ≈ 2%</b>.</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title e" onclick="tog(this)">🇪🇺 Critères européens et concurrence <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="box-danger"><b>⚠️ Pacte de stabilité :</b><br>① Déficit &lt; 3% du PIB &nbsp;|&nbsp; ② Dette &lt; 60% du PIB</div>
+      <div class="notion e"><div class="lbl">Politique de la concurrence</div><div class="def">Règles contre les ententes et abus de position dominante. Gérée par la <b>Commission européenne + ADLC</b> (France).</div></div>
+      <div class="notion e"><div class="lbl">Politique monétaire européenne</div><div class="def">Un seul taux directeur pour les 20 pays de la zone euro. Pas de politique nationale.</div></div>
+    </div>
+  </div>
+  </div></div></div>
+
+<!-- E4 -->
+<div id="e4" class="page">
+  <div class="fiche-top-bar"><button class="back-btn" onclick="show('home')">←</button><div class="top-bar-title">E4 · Politiques sociales</div></div>
+  <div class="fiche-wrap">
+    <div class="fiche-hero e"><h2>📊 Les politiques sociales</h2><p>Redistribution et protection</p></div>
+    <div class="fiche-content">
+  <div class="section">
+    <div class="sec-title e open" onclick="tog(this)">📊 Inégalités et redistribution <span class="chevron">▼</span></div>
+    <div class="sec-body open">
+      <div class="notion e"><div class="lbl">Inégalités socioéconomiques</div><div class="def">Différences de revenus, patrimoine, emploi, santé, éducation. Elles se <b>cumulent souvent</b>.</div></div>
+      <div class="compare">
+        <div class="ccard green"><h4>Redistribution HORIZONTALE</h4><ul><li>Protège contre les <b>risques sociaux</b></li><li>Maladie · Chômage · Vieillesse</li><li>→ Sécurité du revenu</li></ul></div>
+        <div class="ccard green"><h4>Redistribution VERTICALE</h4><ul><li>Prend + aux <b>aisés</b></li><li>Impôts progressifs + prestations</li><li>→ Réduit les inégalités</li></ul></div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title e" onclick="tog(this)">🛡️ Logique assurance vs assistance <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="compare">
+        <div class="ccard green"><h4>Logique d'ASSURANCE</h4><ul><li>Système <b>contributif</b></li><li>On cotise → droits proportionnels</li><li>Ex : retraite, chômage</li></ul></div>
+        <div class="ccard amber"><h4>Logique d'ASSISTANCE</h4><ul><li>Financé par <b>l'impôt</b></li><li>Même sans cotisation</li><li>Ex : RSA, aide sociale</li></ul></div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title e" onclick="tog(this)">💶 Prélèvements et progressivité <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion e"><div class="lbl">Impôts</div><div class="def">Prélèvements <b>SANS contrepartie directe</b> (IR, TVA). Financent les services publics.</div></div>
+      <div class="notion e"><div class="lbl">Cotisations sociales</div><div class="def">Financent la protection sociale et <b>ouvrent des droits</b> (santé, retraite, chômage).</div></div>
+      <div class="notion e"><div class="lbl">Progressivité</div><div class="def">Taux <b>augmente avec le revenu</b>. L'IR est progressif → outil de redistribution verticale.</div></div>
+    </div>
+  </div>
+  </div></div></div>
+
+<!-- E5 -->
+<div id="e5" class="page">
+  <div class="fiche-top-bar"><button class="back-btn" onclick="show('home')">←</button><div class="top-bar-title">E5 · Activité &amp; chômage</div></div>
+  <div class="fiche-wrap">
+    <div class="fiche-hero e"><h2>📊 Activité et chômage</h2><p>Marché du travail</p></div>
+    <div class="fiche-content">
+  <div class="section">
+    <div class="sec-title e open" onclick="tog(this)">👥 Population active et taux <span class="chevron">▼</span></div>
+    <div class="sec-body open">
+      <div class="notion e"><div class="lbl">Population active</div><div class="def">Actifs occupés (emploi) + chômeurs (15-64 ans).</div></div>
+      <div class="notion e"><div class="lbl">Taux d'activité</div><div class="def"><b>Pop. active / Pop. en âge de travailler × 100</b></div></div>
+      <div class="notion e"><div class="lbl">Taux d'emploi</div><div class="def"><b>Actifs occupés / Pop. en âge de travailler × 100</b></div></div>
+      <div class="notion e"><div class="lbl">Plein emploi</div><div class="def">Tous ceux qui veulent travailler trouvent un emploi. Chômage ≈ 4-5%.</div></div>
+      <div class="notion e"><div class="lbl">Sous-emploi</div><div class="def">Emploi <b>en dessous de la qualification</b> ou temps partiel subi.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title e" onclick="tog(this)">📋 Définition du chômage (BIT) <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="box-danger"><b>⚠️ 4 critères CUMULATIFS :</b></div>
+      <ul class="numlist">
+        <li><span class="n e">1</span><span>Âgé de <b>15 ans ou +</b></span></li>
+        <li><span class="n e">2</span><span><b>Sans emploi</b> la semaine de référence</span></li>
+        <li><span class="n e">3</span><span><b>Disponible</b> dans les 2 semaines</span></li>
+        <li><span class="n e">4</span><span><b>Démarche active</b> dans les 4 dernières semaines OU emploi dans les 3 mois</span></li>
+      </ul>
+      <div class="notion e"><div class="lbl">Taux de chômage</div><div class="def"><b>Nb chômeurs / Pop. active × 100</b></div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title e" onclick="tog(this)">🔁 Offre et demande de travail <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="compare">
+        <div class="ccard blue"><h4>Offre de travail = Demande d'emploi</h4><ul><li>Côté <b>salariés</b></li><li>Les ménages proposent leur travail</li></ul></div>
+        <div class="ccard green"><h4>Demande de travail = Offre d'emploi</h4><ul><li>Côté <b>entreprises</b></li><li>Les entreprises cherchent des salariés</li></ul></div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title e" onclick="tog(this)">📊 Les formes de chômage <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion e"><div class="lbl">⚙️ Chômage structurel</div><div class="def">Inadéquation <b>durable</b> offre/demande. Technologie, désindustrialisation. Durée : <span style="color:var(--red);font-weight:700">Longue</span></div></div>
+      <div class="notion e"><div class="lbl">📉 Chômage conjoncturel</div><div class="def">Ralentissement activité → demande anticipée baisse → licenciements. Durée : <span style="color:var(--amb);font-weight:700">Variable</span></div></div>
+      <div class="notion e"><div class="lbl">🔄 Chômage frictionnel</div><div class="def">Personnes entre deux emplois. Normal dans toute économie. Durée : <span style="color:#2E7D32;font-weight:700">Courte</span></div></div>
+      <div class="notion e"><div class="lbl">Demande anticipée (Keynes)</div><div class="def">Entreprises embauchent selon la <b>demande anticipée</b>. Si demande baisse → chômage conjoncturel.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title e" onclick="tog(this)">💼 Négociations et politiques emploi <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion e"><div class="lbl">Salaire minimum (SMIC)</div><div class="def">Seuil minimal légal, revalorisé au 1er janvier.</div></div>
+      <div class="notion e"><div class="lbl">Contraintes légales et conventionnelles</div><div class="def">La loi et les conventions collectives encadrent salaire, durée, congés.</div></div>
+      <div class="compare">
+        <div class="ccard green"><h4>Politiques ACTIVES</h4><ul><li>Améliorent l'<b>employabilité</b></li><li>Formation, aides à l'embauche</li></ul></div>
+        <div class="ccard amber"><h4>Politiques PASSIVES</h4><ul><li><b>Indemnisent</b> les chômeurs</li><li>ARE, préretraites</li></ul></div>
+      </div>
+    </div>
+  </div>
+  </div></div></div>
+
+<!-- E6 -->
+<div id="e6" class="page">
+  <div class="fiche-top-bar"><button class="back-btn" onclick="show('home')">←</button><div class="top-bar-title">E6 · Commerce mondial</div></div>
+  <div class="fiche-wrap">
+    <div class="fiche-hero e"><h2>📊 Transformations du commerce mondial</h2><p>Mondialisation et échanges</p></div>
+    <div class="fiche-content">
+  <div class="section">
+    <div class="sec-title e open" onclick="tog(this)">🌍 Échanges de biens et services <span class="chevron">▼</span></div>
+    <div class="sec-body open">
+      <div class="compare">
+        <div class="ccard green"><h4>Exportations</h4><ul><li>Ventes à l'<b>étranger</b></li><li>Recettes pour le pays</li></ul></div>
+        <div class="ccard blue"><h4>Importations</h4><ul><li>Achats à l'<b>étranger</b></li><li>Dépenses pour le pays</li></ul></div>
+      </div>
+      <div class="notion e"><div class="lbl">Balance des biens et services</div><div class="def">Solde Exports − Imports. <b>Excédentaire</b> si X &gt; M, <b>déficitaire</b> si X &lt; M.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title e" onclick="tog(this)">🏭 Segmentation et chaînes de valeur <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion e"><div class="lbl">Segmentation de la production</div><div class="def">Étapes réalisées dans <b>différents pays</b> selon les avantages compétitifs.</div></div>
+      <div class="compare">
+        <div class="ccard blue"><h4>Produits INTERMÉDIAIRES</h4><ul><li>Utilisés dans le <b>processus de prod.</b></li><li>Ex : composants électroniques</li></ul></div>
+        <div class="ccard green"><h4>Produits FINIS</h4><ul><li>Destinés à la <b>consommation finale</b></li><li>Ex : smartphone, voiture</li></ul></div>
+      </div>
+      <div class="box-important"><b>💡</b> 60-70% des échanges mondiaux = <b>produits intermédiaires</b>.</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-title e" onclick="tog(this)">💼 IDE et FMN <span class="chevron">▼</span></div>
+    <div class="sec-body">
+      <div class="notion e"><div class="lbl">IDE</div><div class="def">Investissements d'une entreprise dans un <b>pays étranger</b> (min. 10% du capital).</div></div>
+      <div class="compare">
+        <div class="ccard green"><h4>IDE ENTRANTS</h4><ul><li>Étrangers investissent <b>en France</b></li><li>→ Attractivité du territoire</li></ul></div>
+        <div class="ccard blue"><h4>IDE SORTANTS</h4><ul><li>Français investissent <b>à l'étranger</b></li><li>→ Stratégie d'internationalisation</li></ul></div>
+      </div>
+      <div class="notion e"><div class="lbl">Firme multinationale (FMN)</div><div class="def">Entreprise avec des <b>filiales dans plusieurs pays</b>. Coordonne ses activités à l'échelle mondiale.</div></div>
+      <div class="notion e"><div class="lbl">Stratégies des FMN</div><div class="def">Minimiser les coûts, accéder aux marchés locaux, avantages fiscaux.</div></div>
+      <div class="box-danger"><b>⚠️ Enjeux :</b> CA parfois &gt; PIB de certains pays. Optimisation fiscale (paradis fiscaux), création/destruction d'emplois.</div>
+    </div>
+  </div>
+  </div></div></div>
+
+</div><!-- /main -->
+
+<!-- BOTTOM NAV -->
+<nav id="botnav">
+  <button class="bnav-btn active-home" id="bn-home" onclick="show('home');setNav('home')">
+    <span class="icon">🏠</span>Accueil
+  </button>
+  <button class="bnav-btn" id="bn-d" onclick="toggleDrawer('drawer-d','d')">
+    <span class="icon">⚖️</span>Droit
+  </button>
+  <button class="bnav-btn" id="bn-e" onclick="toggleDrawer('drawer-e','e')">
+    <span class="icon">📊</span>Éco
+  </button>
+</nav>
+
+<script>
+var currentDrawer = null;
+
+function show(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  var cat = id === 'home' ? 'home' : (id.startsWith('f') ? 'd' : 'e');
+  setNav(cat);
+}
+
+function setNav(cat) {
+  document.getElementById('bn-home').className = 'bnav-btn';
+  document.getElementById('bn-d').className = 'bnav-btn';
+  document.getElementById('bn-e').className = 'bnav-btn';
+  if(cat === 'home') document.getElementById('bn-home').className = 'bnav-btn active-home';
+  else if(cat === 'd') document.getElementById('bn-d').className = 'bnav-btn active-d';
+  else document.getElementById('bn-e').className = 'bnav-btn active-e';
+}
+
+function toggleDrawer(drawerId, cat) {
+  var d = document.getElementById(drawerId);
+  var ov = document.getElementById('drawer-overlay');
+  if(currentDrawer && currentDrawer !== drawerId) {
+    document.getElementById(currentDrawer).classList.remove('open');
+  }
+  if(d.classList.contains('open')) {
+    d.classList.remove('open');
+    ov.classList.remove('show');
+    currentDrawer = null;
+  } else {
+    d.classList.add('open');
+    ov.classList.add('show');
+    currentDrawer = drawerId;
+    setNav(cat);
+  }
+}
+
+function closeDrawer() {
+  if(currentDrawer) document.getElementById(currentDrawer).classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('show');
+  currentDrawer = null;
+}
+
+function tog(el) {
+  el.classList.toggle('open');
+  el.nextElementSibling.classList.toggle('open');
+}
+
+window.addEventListener('scroll', function() {
+  var btn = document.getElementById('scrolltop');
+  if(window.scrollY > 300) btn.classList.add('show');
+  else btn.classList.remove('show');
+});
+</script>
+</body>
+</html>
